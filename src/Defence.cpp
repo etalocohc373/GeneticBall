@@ -1,0 +1,54 @@
+//
+//  Defence.cpp
+//  GeneticTest
+//
+//  Created by Minami Aramaki on 2016/08/09.
+//
+//
+
+#include "Defence.hpp"
+
+Defence::Defence(){
+    this -> isDead = false;
+    this -> speed = ofRandom(10.0, 15.0);
+}
+
+void Defence::init(){
+    float radius = ofRandom(0, 250);
+    float pos_theta = ofRandom(0, 2 * pi);
+    this -> pos = ofVec2f(radius * sin(pos_theta), radius * cos(pos_theta));
+    this -> isDead = false;
+    this -> speed = ofRandom(10.0, 15.0);
+}
+
+void Defence::update(float ballTheta){
+    this -> theta = ofMap(360 - (ofVec2f(-1, 0).angleRad(pos) + PI) / PI * 180, 0, 360, 0, 2 * PI);
+    
+    float acc_theta = ofRandom(0, 2 * pi);
+    this -> isEscaping = willEscapeFrom(ballTheta);
+    if (isEscaping){
+        acc_theta = ofRandom(ballTheta + pi/2, ballTheta + pi * 3/2);
+        acc_theta += PI/2;
+        while (acc_theta >= 2*pi) acc_theta -= 2 * pi;
+    }
+    
+    if (pow(pow(double(pos.x) + speed * sin(acc_theta), 2) + pow(double(pos.y) + speed * cos(acc_theta), 2), 0.5) < 250 - 10)
+        this -> pos += ofVec2f(speed * sin(acc_theta), speed * cos(acc_theta));
+}
+
+bool Defence::willEscapeFrom(float ballTheta){
+    bool result = false;
+    if (ballTheta < pi / 2){//1
+        if (theta < ballTheta + pi / 2 || theta > ballTheta + pi * 3/2) result = true;
+        else result = false;
+    }else if (ballTheta < pi * 3/2){//2
+        if (ballTheta - pi / 2 < theta && theta < ballTheta + pi / 2) result = true;
+        else result = false;
+    }else{//3
+        if (theta < ballTheta + pi/2 - 2*pi || theta > ballTheta - pi / 2) result = true;
+        else result = false;
+    }
+    
+    return result;
+}
+
