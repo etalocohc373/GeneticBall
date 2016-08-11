@@ -236,12 +236,10 @@ bool ofApp::doesExistFrontOf(int defIndex, int offIndex){
 
 bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
     bool result = false;
-    float hoge = defence[defIndex].theta + pi /2;
-    if (hoge >= 2 * pi) hoge -= 2 * pi;
     if (offence[offIndex].theta2 < pi){
-        if (offence[offIndex].theta2 > hoge || offence[offIndex].theta2 + 2 * pi < hoge) result = true;
+        if (offence[offIndex].theta2 > defence[defIndex].theta || offence[offIndex].theta2 + pi < defence[defIndex].theta) result = true;
     }else{
-        if (offence[offIndex].theta2 - pi < hoge && offence[offIndex].theta2 > hoge) result = true;
+        if (offence[offIndex].theta2 - pi < defence[defIndex].theta && offence[offIndex].theta2 > defence[defIndex].theta) result = true;
     }
     if (defence[defIndex].isDead) result = false;
     
