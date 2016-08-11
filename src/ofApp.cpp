@@ -220,20 +220,6 @@ int ofApp::selectParent(){
 
 bool ofApp::doesExistFrontOf(int defIndex, int offIndex){
     bool result = false;
-    float hoge = defence[defIndex].theta + pi /2;
-    if (hoge >= 2 * pi) hoge -= 2 * pi;
-    if (offence[offIndex].theta2 < pi){
-        if (offence[offIndex].theta2 > hoge || offence[offIndex].theta2 + 2 * pi < hoge) result = true;
-    }else{
-        if (offence[offIndex].theta2 - pi < hoge && offence[offIndex].theta2 > hoge) result = true;
-    }
-    if (defence[defIndex].isDead) result = false;
-    
-    return result;
-}
-
-bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
-    bool result = false;
     if (offence[offIndex].theta2 < pi / 2){
         if (defence[defIndex].theta < offence[offIndex].theta2 + pi / 2 || defence[defIndex].theta > offence[offIndex].theta2 + pi * 3/2) result = true;
         else result = false;
@@ -245,6 +231,20 @@ bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
         else result = false;
     }
     if (defence[defIndex].isDead) result = false;
+    return result;
+}
+
+bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
+    bool result = false;
+    float hoge = defence[defIndex].theta + pi /2;
+    if (hoge >= 2 * pi) hoge -= 2 * pi;
+    if (offence[offIndex].theta2 < pi){
+        if (offence[offIndex].theta2 > hoge || offence[offIndex].theta2 + 2 * pi < hoge) result = true;
+    }else{
+        if (offence[offIndex].theta2 - pi < hoge && offence[offIndex].theta2 > hoge) result = true;
+    }
+    if (defence[defIndex].isDead) result = false;
+    
     return result;
 }
 
@@ -269,7 +269,7 @@ void ofApp::draw(){
         ofCircle(offence[i].pos, 10);
         
         if (offence[i].haveBall){
-            ofDrawBitmapStringHighlight(ofToString(offence[i].condition_l), offence[i].pos);
+            ofDrawBitmapStringHighlight(ofToString(offence[i].condition_p), offence[i].pos);
             ofLine(offence[i].pos.x, offence[i].pos.y, -offence[i].pos.x, -offence[i].pos.y);
         }
     }
