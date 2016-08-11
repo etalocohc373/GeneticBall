@@ -13,22 +13,19 @@ class Offence {
 public:
     bool operator()(const Offence& a, const Offence& b) const {
         float score_a = 0;
-        if (a.denomi != 0)
-            score_a = float(a.score) / float(a.denomi);
+        if (a.denomi != 0) score_a = pow(double(a.score), 2.0) / float(a.denomi);
         
         float score_b = 0;
-        if (b.denomi != 0)
-            score_b = float(b.score) / float(b.denomi);
-        
-        
+        if (b.denomi != 0) score_b = pow(double(b.score), 2.0) / float(b.denomi);
         
         return score_a > score_b;
     }
     
     int denomi;
     int score;
-    int condition;
-    float gene[3][GENE_NUM];
+    int condition_p;
+    int condition_l;
+    float gene[3][3][GENE_NUM];
     ofVec2f pos;
     
     float theta2;
@@ -40,7 +37,7 @@ public:
     
     Offence();
     void init();
-    void initWithGene(float gene[3][GENE_NUM]);
+    void initWithGene(float gene[3][3][GENE_NUM]);
     void update();
     
 private:

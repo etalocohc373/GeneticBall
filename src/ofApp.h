@@ -3,8 +3,8 @@
 #include "ofMain.h"
 #include "Offence.hpp"
 #include "Defence.hpp"
-#define OFFENCE_NUM 5
-#define DEFENCE_NUM 10 //4の倍数
+#define OFFENCE_NUM 8
+#define DEFENCE_NUM 12 //4の倍数
 
 class ofApp : public ofBaseApp{
 	public:
@@ -20,14 +20,16 @@ class ofApp : public ofBaseApp{
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
+        void gotMessage(ofMessage msg);
     void inheritGene();
+    void inheritGene_d();
     bool ballCaughtWhenUpdatedOffence();
     
     int getClosestOffence();
     int selectParent();
     float getDistanceBetweenPoints(ofVec2f point1, ofVec2f point2);
     bool doesExistLeftOf(int defIndex, int offIndex);
+    bool doesExistFrontOf(int defIndex, int offIndex);
     
     Offence offence[OFFENCE_NUM];
     Defence defence[DEFENCE_NUM];

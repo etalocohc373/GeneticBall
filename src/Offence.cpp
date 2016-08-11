@@ -9,10 +9,11 @@
 #include "Offence.hpp"
 
 Offence::Offence(){
-    for (int i = 0; i < 3; i++){
-        int sign = pow(-1.0, rand());
-        for (int j = 0; j < GENE_NUM; j++) this -> gene[i][j] = ofRandom(.01, .05) * sign;
-    }
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < GENE_NUM; k++) this -> gene[i][j][k] = ofRandom(.01, .05);
+    this -> denomi = 0;
+    this -> score = 0;
 }
 
 void Offence::init(){
@@ -25,23 +26,27 @@ void Offence::init(){
     this -> speed = ofRandom(.04, .045) * (int)pow(double(-1), (int)rand());
     this -> ballSpeed = ofRandom(8, 9);
     
-    this -> condition = 0;
-    // 0: 左 1: 同じ 2: 右
+    this -> condition_p = 0;
+    this -> condition_l = 0;
+    // landscape --- 0: 左 1: 同じ 2: 右
+    // portrait --- 0: 手前 1: 同じ 2: 奥
     this -> denomi = 0;
     this -> score = 0;
 }
 
-void Offence::initWithGene(float gotGene[3][GENE_NUM]){
+void Offence::initWithGene(float gotGene[3][3][GENE_NUM]){
     this -> init();
     for (int i = 0; i < 3; i++)
-        for (int j = 0; j < GENE_NUM; j++) this -> gene[i][j] = gotGene[i][j];
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < GENE_NUM; k++) this -> gene[i][j][k] = gotGene[i][j][k];
 }
 
 void Offence::update(){
     if (haveBall){
-        this -> theta += gene[condition][index];
+        this -> theta += gene[condition_p][condition_l][index];
         this -> index++;
         if (index >= GENE_NUM){
+            this -> denomi++;
             this -> willThrowBall = true;
             this -> haveBall = false;
             this -> index = 0;

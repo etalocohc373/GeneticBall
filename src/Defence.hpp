@@ -7,20 +7,28 @@
 //
 
 #include "ofMain.h"
+#define DGENE_NUM 100
 
 class Defence {
 public:
-    //unsigned int gene[GENE_NUM];
+    bool operator()(const Defence& a, const Defence& b) const {
+        return a.elapsedTime < b.elapsedTime;
+    }
     
     float speed;
     float theta;
+    float elapsedTime;
     ofVec2f pos;
+    float gene[DGENE_NUM];
     bool isDead;
     bool isEscaping;
     
     Defence();
     void init();
-    //void initWithGene(unsigned int gene[GENE_NUM]);
+    void initWithGene(float gene[DGENE_NUM]);
     void update(float ballTheta);
     bool willEscapeFrom(float ballTheta);
+    
+private:
+    int index;
 };
