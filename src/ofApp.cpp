@@ -51,20 +51,22 @@ bool ofApp::ballCaughtWhenUpdatedOffence(){
     bool ballCaught = false;
     for (int i = 0; i < OFFENCE_NUM; i++){
         if (offence[i].haveBall){
+            int aliveNum = 0;
             int leftCount = 0;
             int frontCount = 0;
             for (int j = 0; j < DEFENCE_NUM; j++){
                 if (doesExistLeftOf(j, i)) leftCount++;
                 if (doesExistFrontOf(j, i)) frontCount++;
+                if (!defence[i].isDead) aliveNum ++;
             }
             //cout << leftCount << endl;
-            if (leftCount > DEFENCE_NUM / 2) offence[i].condition_l = 0;
-            if (leftCount == DEFENCE_NUM / 2) offence[i].condition_l = 1;
-            if (leftCount < DEFENCE_NUM / 2) offence[i].condition_l = 2;
+            if (leftCount > aliveNum / 2) offence[i].condition_l = 0;
+            if (leftCount == aliveNum / 2) offence[i].condition_l = 1;
+            if (leftCount < aliveNum / 2) offence[i].condition_l = 2;
             
-            if (frontCount > DEFENCE_NUM / 2) offence[i].condition_p = 0;
-            if (frontCount == DEFENCE_NUM / 2) offence[i].condition_p = 1;
-            if (frontCount < DEFENCE_NUM / 2) offence[i].condition_p = 2;
+            if (frontCount > aliveNum / 2) offence[i].condition_p = 0;
+            if (frontCount == aliveNum / 2) offence[i].condition_p = 1;
+            if (frontCount < aliveNum / 2) offence[i].condition_p = 2;
             
             ballCaught = true;
             ballPosition = offence[i].pos;
