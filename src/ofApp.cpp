@@ -10,12 +10,11 @@ float fromTheta = 0;
 void ofApp::setup(){
     ofBackground(0);
     ofSetCircleResolution(32);
-    ofSetFrameRate(20);
+    ofSetFrameRate(10);
     for (int i = 0; i < OFFENCE_NUM; i++) offence[i].init();
     
     int first = rand() % OFFENCE_NUM;
     offence[first].haveBall = true;
-    offence[first].denomi++;
     
     for (int i = 0; i < DEFENCE_NUM; i++) defence[i].init();
 }
@@ -30,12 +29,14 @@ void ofApp::update(){
             defence[i].isDead = true;
             didKill = true;
             offence[ballThrower].score++;
-            cout << ballThrower << ": " << float(offence[ballThrower].score) / float(offence[ballThrower].denomi) << endl;
+            
+            cout << ballThrower << ": " << float(offence[ballThrower].score) << ", " << float(offence[ballThrower].denomi) << endl;
         }
         if (!defence[i].isDead) defeated = false;
     }
     if (defeated){
         inheritGene();
+        //inheritGene_d();
         defeated = false;
         return;
     }
@@ -51,13 +52,19 @@ bool ofApp::ballCaughtWhenUpdatedOffence(){
     for (int i = 0; i < OFFENCE_NUM; i++){
         if (offence[i].haveBall){
             int leftCount = 0;
+            int frontCount = 0;
             for (int j = 0; j < DEFENCE_NUM; j++){
                 if (doesExistLeftOf(j, i)) leftCount++;
+                if (doesExistFrontOf(j, i)) frontCount++;
             }
             //cout << leftCount << endl;
-            if (leftCount > DEFENCE_NUM / 2) offence[i].condition = 0;
-            if (leftCount == DEFENCE_NUM / 2) offence[i].condition = 1;
-            if (leftCount < DEFENCE_NUM / 2) offence[i].condition = 2;
+            if (leftCount > DEFENCE_NUM / 2) offence[i].condition_l = 0;
+            if (leftCount == DEFENCE_NUM / 2) offence[i].condition_l = 1;
+            if (leftCount < DEFENCE_NUM / 2) offence[i].condition_l = 2;
+            
+            if (frontCount > DEFENCE_NUM / 2) offence[i].condition_p = 0;
+            if (frontCount == DEFENCE_NUM / 2) offence[i].condition_p = 1;
+            if (frontCount < DEFENCE_NUM / 2) offence[i].condition_p = 2;
             
             ballCaught = true;
             ballPosition = offence[i].pos;
@@ -68,7 +75,6 @@ bool ofApp::ballCaughtWhenUpdatedOffence(){
             ballPosition = offence[i].pos;
             offence[i].willThrowBall = false;
             didKill = false;
-            offence[i].denomi++;
             
             /*int aim = rand() % DEFENCE_NUM;
              while (defence[aim].isDead && !defeated) aim = rand() % DEFENCE_NUM;
@@ -90,48 +96,153 @@ void ofApp::inheritGene(){
     int parent1 = selectParent();
     int parent2 = selectParent();
     while (parent2 == parent1) parent2 = selectParent();
-    float gene[3][GENE_NUM];
-    for (int j = 0; j < 3; j++){
-        for (int i = 0; i < GENE_NUM; i++){
-            if (i < GENE_NUM / 2) gene[j][i] = offence[parent1].gene[j][i];
-            else gene[j][i] = offence[parent2].gene[j][i];
+    
+    int crosspoint1 = rand() % (GENE_NUM - 2);
+    int crosspoint2 = rand() % (GENE_NUM - crosspoint1 - 2) + crosspoint1 + 1;
+    
+    float child1[3][3][GENE_NUM];
+    float child2[3][3][GENE_NUM];
+    for (int k = 0; k < 3; k++){
+        for (int j = 0; j < 3; j++){
+            for (int i = 0; i < GENE_NUM; i++){//二点交叉
+                if (i < crosspoint1 || i > crosspoint2){
+                    child1[k][j][i] = offence[parent1].gene[k][j][i];
+                    child2[k][j][i] = offence[parent2].gene[k][j][i];
+                }else{
+                    child1[k][j][i] = offence[parent2].gene[k][j][i];
+                    child2[k][j][i] = offence[parent1].gene[k][j][i];
+                }
+                /*int index = rand() % 2;
+                 if (index == 0){
+                 child1[j][i] = offence[parent1].gene[j][i];
+                 child2[j][i] = offence[parent2].gene[j][i];
+                 }else{
+                 child1[j][i] = offence[parent2].gene[j][i];
+                 child2[j][i] = offence[parent1].gene[j][i];
+                 }*///一様交叉
+            }
+        }
+    }
+    
+    for (int i = 0; i < OFFENCE_NUM; i++){//突然変異
+        offence[i].initWithGene(offence[i].gene);
+        int mutate = rand() % 200;
+        if (mutate <= 1){
+            int mutateIndex = rand() % 3;
+            int mutateIndex2 = rand() % 3;
+            int mutateIndex3 = rand() % GENE_NUM;
+            int sign = pow(-1.0, rand());
+            offence[i].gene[mutateIndex][mutateIndex2][mutateIndex3] = ofRandom(.01, .05) * sign;
+            cout << "mutated" << endl;
         }
     }
     
     didKill = false;
     fromTheta = 0;
-    for (int i = 0; i < OFFENCE_NUM; i++) offence[i].initWithGene(offence[i].gene);
-    offence[OFFENCE_NUM - 1].initWithGene(gene);
+    offence[OFFENCE_NUM - 1].initWithGene(child1);
+    offence[OFFENCE_NUM - 2].initWithGene(child2);
     int first = rand() % OFFENCE_NUM;
     offence[first].haveBall = true;
-    offence[first].denomi++;
+    offence[first].denomi = 1;
     for (int i = 0; i < DEFENCE_NUM; i++) defence[i].init();
     cout << "success: " << parent1 << ", " << parent2 << endl;
 }
 
+void ofApp::inheritGene_d(){
+    sort(defence, defence + DEFENCE_NUM, Defence());
+    
+    int parent1 = selectParent();
+    int parent2 = selectParent();
+    while (parent2 == parent1) parent2 = selectParent();
+    
+    int crosspoint1 = rand() % (DGENE_NUM - 2);
+    int crosspoint2 = rand() % (DGENE_NUM - crosspoint1 - 2) + crosspoint1 + 1;
+    
+    float child1[DGENE_NUM];
+    float child2[DGENE_NUM];
+    for (int i = 0; i < DGENE_NUM; i++){//二点交叉
+        /*if (i < crosspoint1 || i > crosspoint2){
+         child1[j][i] = offence[parent1].gene[j][i];
+         child2[j][i] = offence[parent2].gene[j][i];
+         }else{
+         child1[j][i] = offence[parent2].gene[j][i];
+         child2[j][i] = offence[parent1].gene[j][i];
+         }*/
+        
+        int index = rand() % 2;
+        if (index == 0){
+            child1[i] = defence[parent1].gene[i];
+            child2[i] = defence[parent2].gene[i];
+        }else{
+            child1[i] = defence[parent2].gene[i];
+            child2[i] = defence[parent1].gene[i];
+        }//一様交叉
+    }
+    
+    for (int i = 0; i < DEFENCE_NUM; i++){//突然変異
+        defence[i].initWithGene(defence[i].gene);
+        int mutate = rand() % 1000;
+        if (mutate <= 1){
+            int mutateIndex = rand() % DGENE_NUM;
+            int sign = pow(-1.0, rand());
+            defence[i].gene[mutateIndex] = ofRandom(0, 2 * pi);
+            cout << "mutated" << endl;
+        }
+    }
+    defence[DEFENCE_NUM - 1].initWithGene(child1);
+    defence[DEFENCE_NUM - 2].initWithGene(child2);
+    int first = rand() % DEFENCE_NUM;
+    for (int i = 0; i < DEFENCE_NUM; i++) defence[i].init();
+    cout << "d_success: " << parent1 << ", " << parent2 << endl;
+}
+
 int ofApp::selectParent(){
-    int roulette = rand() % 100;
+    int hoge = int(pow(2.0, OFFENCE_NUM));
+    int roulette = rand() % hoge;
     int selectNum = 0;
-    if (roulette >= 50) selectNum = 0;
+    
+    for (int i = 0; i < OFFENCE_NUM; i++){
+        if (roulette >= hoge / pow(2.0, i + 1)){
+            selectNum = i;
+        }
+    }
+    /*if (roulette >= 50) selectNum = 0;
     else if (roulette >= 25) selectNum = 1;
     else if (roulette >= 12) selectNum = 2;
     else if (roulette >= 5) selectNum = 3;
-    else /*if (roulette >= 1)*/ selectNum = 4;
-    //else selectNum = 5;
+    else if (roulette >= 2) selectNum = 4;
+    else if (roulette >= 0) selectNum = 5;*/
     
     return selectNum;
 }
 
-bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
+bool ofApp::doesExistFrontOf(int defIndex, int offIndex){
     bool result = false;
+    float hoge = defence[defIndex].theta + pi /2;
+    if (hoge >= 2 * pi) hoge -= 2 * pi;
     if (offence[offIndex].theta2 < pi){
-        if (offence[offIndex].theta2 > defence[defIndex].theta || offence[offIndex].theta2 + 2 * pi < defence[defIndex].theta) result = true;
+        if (offence[offIndex].theta2 > hoge || offence[offIndex].theta2 + 2 * pi < hoge) result = true;
     }else{
-        if (offence[offIndex].theta2 - pi < defence[defIndex].theta && offence[offIndex].theta2 > defence[defIndex].theta) result = true;
+        if (offence[offIndex].theta2 - pi < hoge && offence[offIndex].theta2 > hoge) result = true;
     }
     if (defence[defIndex].isDead) result = false;
     
-    
+    return result;
+}
+
+bool ofApp::doesExistLeftOf(int defIndex, int offIndex){
+    bool result = false;
+    if (offence[offIndex].theta2 < pi / 2){
+        if (defence[defIndex].theta < offence[offIndex].theta2 + pi / 2 || defence[defIndex].theta > offence[offIndex].theta2 + pi * 3/2) result = true;
+        else result = false;
+    }else if (offence[offIndex].theta2 < pi * 3/2){
+        if (offence[offIndex].theta2 - pi / 2 < defence[defIndex].theta && defence[defIndex].theta < offence[offIndex].theta2 + pi / 2) result = true;
+        else result = false;
+    }else{
+        if (defence[defIndex].theta < offence[offIndex].theta2 + pi/2 - 2*pi || defence[defIndex].theta > offence[offIndex].theta2 - pi / 2) result = true;
+        else result = false;
+    }
+    if (defence[defIndex].isDead) result = false;
     return result;
 }
 
@@ -148,14 +259,21 @@ void ofApp::draw(){
     ofCircle(0, 0, 250);
     
     ofFill();
+    ofSetColor(0, 0, 255);
+    ofCircle(ballPosition, 8);
     for (int i = 0; i < OFFENCE_NUM; i++){
         ofSetColor(255);
         if (offence[i].haveBall) ofSetColor(255, 50, 50);
         ofCircle(offence[i].pos, 10);
+        
+        if (offence[i].haveBall){
+            ofDrawBitmapStringHighlight(ofToString(offence[i].condition_l), offence[i].pos);
+            ofLine(offence[i].pos.x, offence[i].pos.y, -offence[i].pos.x, -offence[i].pos.y);
+        }
     }
     
     ofSetColor(0, 255, 0);
-    for (int i = 0; i < DEFENCE_NUM; i++)
+    for (int i = 0; i < DEFENCE_NUM; i++){
         if (!defence[i].isDead) {
             if (defence[i].isEscaping) ofSetColor(255, 0, 0);
             else ofSetColor(0, 255, 0);
@@ -163,9 +281,7 @@ void ofApp::draw(){
             //ofDrawBitmapStringHighlight(ofToString(defence[i].acc_theta), defence[i].pos);
             //ofLine(defence[i].pos,defence[i].pos+20*ofVec2f(cos(defence[i].acc_theta),sin(defence[i].acc_theta)));
         }
-    
-    ofSetColor(0, 0, 255);
-    ofCircle(ballPosition, 8);
+    }
 }
 
 int ofApp::getClosestOffence(){

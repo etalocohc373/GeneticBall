@@ -9,8 +9,9 @@
 #include "Defence.hpp"
 
 Defence::Defence(){
+    this -> index = 0;
     this -> isDead = false;
-    this -> speed = ofRandom(10.0, 15.0);
+    for (int i = 0; i < DGENE_NUM; i++) gene[i] = ofRandom(0, 2 * pi);
 }
 
 void Defence::init(){
@@ -18,7 +19,13 @@ void Defence::init(){
     float pos_theta = ofRandom(0, 2 * pi);
     this -> pos = ofVec2f(radius * sin(pos_theta), radius * cos(pos_theta));
     this -> isDead = false;
-    this -> speed = ofRandom(10.0, 15.0);
+    this -> speed = ofRandom(14.0, 15.0);
+    this -> elapsedTime = 0;
+}
+
+void Defence::initWithGene(float gotGene[DGENE_NUM]){
+    this -> init();
+    for (int i = 0; i < DGENE_NUM; i++) this -> gene[i] = gotGene[i];
 }
 
 void Defence::update(float ballTheta){
@@ -30,10 +37,15 @@ void Defence::update(float ballTheta){
         acc_theta = ofRandom(ballTheta + pi/2, ballTheta + pi * 3/2);
         acc_theta += PI/2;
         while (acc_theta >= 2*pi) acc_theta -= 2 * pi;
-    }
+    }//自動
+    /*acc_theta = gene[index];
+    this -> index++;
+    if (index >= DGENE_NUM) index = 0;*///進化
     
     if (pow(pow(double(pos.x) + speed * sin(acc_theta), 2) + pow(double(pos.y) + speed * cos(acc_theta), 2), 0.5) < 250 - 10)
         this -> pos += ofVec2f(speed * sin(acc_theta), speed * cos(acc_theta));
+    
+    if (!isDead) this -> elapsedTime += 0.1;
 }
 
 bool Defence::willEscapeFrom(float ballTheta){
