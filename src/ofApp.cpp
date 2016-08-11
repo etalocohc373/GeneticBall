@@ -269,7 +269,7 @@ void ofApp::draw(){
         ofCircle(offence[i].pos, 10);
         
         if (offence[i].haveBall){
-            ofDrawBitmapStringHighlight(ofToString(offence[i].condition_p), offence[i].pos);
+            ofDrawBitmapStringHighlight(ofToString(offence[i].condition_l), offence[i].pos);
             ofLine(offence[i].pos.x, offence[i].pos.y, -offence[i].pos.x, -offence[i].pos.y);
         }
     }
