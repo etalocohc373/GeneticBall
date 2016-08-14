@@ -3,8 +3,9 @@
 #include "ofMain.h"
 #include "Offence.hpp"
 #include "Defence.hpp"
-#define OFFENCE_NUM 8
-#define DEFENCE_NUM 12 //4の倍数
+#define OFFENCE_NUM 6
+#define DEFENCE_NUM 10
+#define MAX_GENERATION 100
 
 class ofApp : public ofBaseApp{
 	public:
@@ -21,9 +22,21 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
         void gotMessage(ofMessage msg);
+    
+    void setupPeople();
+    void restart();
     void inheritGene();
-    void inheritGene_d();
-    bool ballCaughtWhenUpdatedOffence();
+    //void inheritGene_d();
+    void updateDefence();
+    void ballHitTo(int index);
+    void updateOffence();
+    void letThrowBall(int thrower);
+    void setConditionOf(int off_index);
+    void mutate();
+    void drawGraph();
+    void drawDef();
+    void drawOff();
+    void drawBackground();
     
     int getClosestOffence();
     int selectParent();

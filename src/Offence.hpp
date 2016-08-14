@@ -7,7 +7,8 @@
 //
 
 #include "ofMain.h"
-#define GENE_NUM 100
+#define GENE_NUM 50
+#define RADIUS 150
 
 class Offence {
 public:
@@ -25,7 +26,7 @@ public:
     int score;
     int condition_p;
     int condition_l;
-    float gene[3][3][GENE_NUM];
+    float gene[2][2][GENE_NUM];
     ofVec2f pos;
     
     float theta2;
@@ -37,7 +38,7 @@ public:
     
     Offence();
     void init();
-    void initWithGene(float gene[3][3][GENE_NUM]);
+    void initWithGene(float gene[2][2][GENE_NUM]);
     void update();
     
 private:

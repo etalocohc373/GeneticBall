@@ -9,9 +9,14 @@
 #include "Offence.hpp"
 
 Offence::Offence(){
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            for (int k = 0; k < GENE_NUM; k++) this -> gene[i][j][k] = ofRandom(.01, .05);
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 2; j++){
+            float sign = pow(double(-1), rand());
+            for (int k = 0; k < GENE_NUM; k++){
+                this -> gene[i][j][k] = ofRandom(.02, .07)/* * sign*/;
+            }
+        }
+    }
     this -> denomi = 0;
     this -> score = 0;
 }
@@ -23,7 +28,7 @@ void Offence::init(){
     this -> haveBall = false;
     this -> willThrowBall = false;
     
-    this -> speed = ofRandom(.04, .045) * (int)pow(double(-1), (int)rand());
+    this -> speed = ofRandom(.04, .045) * (int)pow(double(-1), rand());
     this -> ballSpeed = ofRandom(8, 9);
     
     this -> condition_p = 0;
@@ -34,10 +39,10 @@ void Offence::init(){
     this -> score = 0;
 }
 
-void Offence::initWithGene(float gotGene[3][3][GENE_NUM]){
+void Offence::initWithGene(float gotGene[2][2][GENE_NUM]){
     this -> init();
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
             for (int k = 0; k < GENE_NUM; k++) this -> gene[i][j][k] = gotGene[i][j][k];
 }
 
@@ -55,6 +60,6 @@ void Offence::update(){
         this -> theta += speed;
     }
     while (theta >= 2 * pi) this -> theta -= 2 * pi;
-    this -> pos = ofVec2f(sin(theta) * (250 + 10), cos(theta) * (250 + 10));
+    this -> pos = ofVec2f(sin(theta) * (RADIUS + 10), cos(theta) * (RADIUS + 10));
     theta2 = ofMap(360 - (ofVec2f(-1, 0).angleRad(pos) + PI) / PI * 180, 0, 360, 0, 2 * PI);
 }

@@ -15,11 +15,11 @@ Defence::Defence(){
 }
 
 void Defence::init(){
-    float radius = ofRandom(0, 250);
+    float radius = ofRandom(RADIUS_MIN + .1, RADIUS - .1);
     float pos_theta = ofRandom(0, 2 * pi);
     this -> pos = ofVec2f(radius * sin(pos_theta), radius * cos(pos_theta));
     this -> isDead = false;
-    this -> speed = ofRandom(14.0, 15.0);
+    this -> speed = ofRandom(10.0, 12.0);
     this -> elapsedTime = 0;
 }
 
@@ -42,10 +42,18 @@ void Defence::update(float ballTheta){
     this -> index++;
     if (index >= DGENE_NUM) index = 0;*///進化
     
-    if (pow(pow(double(pos.x) + speed * sin(acc_theta), 2) + pow(double(pos.y) + speed * cos(acc_theta), 2), 0.5) < 250 - 10)
+    if (willExistInFieldWhenMoved(acc_theta))
         this -> pos += ofVec2f(speed * sin(acc_theta), speed * cos(acc_theta));
     
     if (!isDead) this -> elapsedTime += 0.1;
+}
+
+bool Defence::willExistInFieldWhenMoved(float acc_theta){
+    bool result = true;
+    float distMoved = pow(pow(double(pos.x) + speed * sin(acc_theta), 2) + pow(double(pos.y) + speed * cos(acc_theta), 2), 0.5);
+    if (distMoved >= RADIUS - DEF_RADIUS || distMoved <= RADIUS_MIN + DEF_RADIUS) result = false;
+    
+    return result;
 }
 
 bool Defence::willEscapeFrom(float ballTheta){
